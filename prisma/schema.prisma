@@ -1,0 +1,440 @@
+// WealthPilot — Prisma schema
+// Fase 1: modelo de datos completo, listo para migraciones
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ────────────────────────────────
+// USUARIO Y AUTENTICACIÓN
+// ────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String? // null si usa OAuth
+  name          String?
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  profile          Profile?
+  incomes          Income[]
+  expenses         Expense[]
+  assets           Asset[]
+  liabilities      Liability[]
+  goals            Goal[]
+  riskProfile      RiskProfile?
+  portfolio        Portfolio?
+  investmentPlans  InvestmentPlan[]
+  brokerConnections BrokerConnection[]
+  alerts           Alert[]
+  aiConversations  AIConversation[]
+
+  sessions Session[]
+  accounts Account[]
+
+  @@map("users")
+}
+
+// NextAuth-compatible tables
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+// ────────────────────────────────
+// PERFIL Y ONBOARDING
+// ────────────────────────────────
+
+model Profile {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  age                Int?
+  country            String?  @default("ES")
+  currency           String   @default("EUR")
+  onboardingStep     Int      @default(0) // 0-8, ver PASO 1..8
+  onboardingComplete Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("profiles")
+}
+
+// ────────────────────────────────
+// MI DINERO
+// ────────────────────────────────
+
+enum Recurrence {
+  ONE_TIME
+  MONTHLY
+  ANNUAL
+}
+
+model Income {
+  id         String     @id @default(cuid())
+  userId     String
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label      String
+  category   String // salario, alquileres, trabajos_extra, dividendos, otros
+  amount     Decimal    @db.Decimal(14, 2)
+  recurrence Recurrence @default(MONTHLY)
+  startDate  DateTime   @default(now())
+  endDate    DateTime?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  @@index([userId])
+  @@map("incomes")
+}
+
+enum ExpenseType {
+  FIXED
+  VARIABLE
+}
+
+model Expense {
+  id         String      @id @default(cuid())
+  userId     String
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label      String
+  category   String // vivienda, alimentacion, transporte, seguros, ocio, viajes, prestamos, suscripciones, otros
+  amount     Decimal     @db.Decimal(14, 2)
+  type       ExpenseType @default(VARIABLE)
+  recurrence Recurrence  @default(MONTHLY)
+  startDate  DateTime    @default(now())
+  endDate    DateTime?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  @@index([userId])
+  @@map("expenses")
+}
+
+enum AssetType {
+  CASH
+  BANK_ACCOUNT
+  DEPOSIT
+  EMERGENCY_FUND
+  OTHER
+}
+
+model Asset {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label     String
+  type      AssetType
+  amount    Decimal   @db.Decimal(14, 2)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("assets")
+}
+
+model Liability {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label           String
+  type            String // hipoteca, prestamo_personal, prestamo_coche, tarjeta, otros
+  outstanding     Decimal  @db.Decimal(14, 2)
+  interestRate    Decimal  @db.Decimal(6, 3) // %
+  monthlyPayment  Decimal  @db.Decimal(14, 2)
+  endDate         DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+  @@map("liabilities")
+}
+
+// ────────────────────────────────
+// OBJETIVOS
+// ────────────────────────────────
+
+enum GoalType {
+  HOME
+  CAR
+  TRIP
+  EMERGENCY_FUND
+  RETIREMENT
+  FINANCIAL_INDEPENDENCE
+  NET_WORTH_TARGET
+  CUSTOM
+}
+
+enum GoalPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model Goal {
+  id                String       @id @default(cuid())
+  userId            String
+  user              User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name              String
+  type              GoalType
+  targetAmount      Decimal      @db.Decimal(14, 2)
+  currentAmount     Decimal      @db.Decimal(14, 2) @default(0)
+  targetDate        DateTime?
+  monthlyContribution Decimal    @db.Decimal(14, 2) @default(0)
+  priority          GoalPriority @default(MEDIUM)
+  riskTolerance     String? // conservador, moderado, dinamico
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  @@index([userId])
+  @@map("goals")
+}
+
+// ────────────────────────────────
+// PERFIL DE RIESGO
+// ────────────────────────────────
+
+enum RiskCategory {
+  CONSERVADOR
+  MODERADO
+  EQUILIBRADO
+  DINAMICO
+  AGRESIVO
+}
+
+model RiskProfile {
+  id         String       @id @default(cuid())
+  userId     String       @unique
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  answers    Json // respuestas brutas al cuestionario (auditable)
+  score      Int // puntuación calculada según lib/risk-profile
+  category   RiskCategory
+  computedAt DateTime     @default(now())
+
+  @@map("risk_profiles")
+}
+
+// ────────────────────────────────
+// CARTERA / INVERSIONES
+// ────────────────────────────────
+
+model Portfolio {
+  id        String       @id @default(cuid())
+  userId    String       @unique
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime     @default(now())
+  investments Investment[]
+
+  @@map("portfolios")
+}
+
+enum InvestmentCategory {
+  ETF
+  STOCK
+  FUND
+  BOND
+  DEPOSIT
+  CRYPTO
+  OTHER
+}
+
+model Investment {
+  id           String             @id @default(cuid())
+  portfolioId  String
+  portfolio    Portfolio          @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  name         String
+  ticker       String?
+  isin         String?
+  category     InvestmentCategory
+  quantity     Decimal            @db.Decimal(18, 6)
+  purchasePrice Decimal           @db.Decimal(14, 4)
+  currentPrice Decimal            @db.Decimal(14, 4)
+  purchaseDate DateTime
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  transactions Transaction[]
+
+  @@index([portfolioId])
+  @@map("investments")
+}
+
+enum TransactionType {
+  BUY
+  SELL
+  DIVIDEND
+  CONTRIBUTION
+  FEE
+}
+
+model Transaction {
+  id               String          @id @default(cuid())
+  investmentId     String?
+  investment       Investment?     @relation(fields: [investmentId], references: [id], onDelete: SetNull)
+  brokerConnectionId String?
+  brokerConnection BrokerConnection? @relation(fields: [brokerConnectionId], references: [id], onDelete: SetNull)
+  type             TransactionType
+  amount           Decimal         @db.Decimal(14, 2)
+  quantity         Decimal?        @db.Decimal(18, 6)
+  price            Decimal?        @db.Decimal(14, 4)
+  date             DateTime
+  createdAt        DateTime        @default(now())
+
+  @@index([investmentId])
+  @@map("transactions")
+}
+
+// ────────────────────────────────
+// PLAN DE INVERSIÓN Y RECOMENDACIONES
+// ────────────────────────────────
+
+model InvestmentPlan {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  availableCapital Decimal @db.Decimal(14, 2)
+  allocation      Json // { etf: 50, usStocks: 20, bonds: 15, cash: 15 }
+  rationale       String?  @db.Text
+  generatedAt     DateTime @default(now())
+
+  recommendations Recommendation[]
+
+  @@index([userId])
+  @@map("investment_plans")
+}
+
+model Recommendation {
+  id               String         @id @default(cuid())
+  investmentPlanId String
+  investmentPlan   InvestmentPlan @relation(fields: [investmentPlanId], references: [id], onDelete: Cascade)
+  summary          String         @db.Text
+  dataSnapshot     Json // snapshot de ingresos/gastos/perfil usados en el cálculo
+  createdAt        DateTime       @default(now())
+
+  @@map("recommendations")
+}
+
+// ────────────────────────────────
+// BROKERS / INTEGRACIONES
+// ────────────────────────────────
+
+enum BrokerProvider {
+  INTERACTIVE_BROKERS
+  TRADE_REPUBLIC
+  DEGIRO
+  ETORO
+  OTHER
+}
+
+enum BrokerConnectionStatus {
+  PENDING
+  CONNECTED
+  ERROR
+  DISCONNECTED
+}
+
+model BrokerConnection {
+  id           String                  @id @default(cuid())
+  userId       String
+  user         User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider     BrokerProvider
+  status       BrokerConnectionStatus  @default(PENDING)
+  accessToken  String? @db.Text // tokenizado, nunca credenciales en claro
+  refreshToken String? @db.Text
+  externalAccountId String?
+  connectedAt  DateTime?
+  lastSyncAt   DateTime?
+  createdAt    DateTime                @default(now())
+
+  transactions Transaction[]
+
+  @@index([userId])
+  @@map("broker_connections")
+}
+
+// ────────────────────────────────
+// ALERTAS
+// ────────────────────────────────
+
+enum AlertType {
+  MONTHLY_AVAILABLE
+  GOAL_PROGRESS
+  EMERGENCY_FUND_LOW
+  PORTFOLIO_CHANGE
+  MISSED_CONTRIBUTION
+}
+
+model Alert {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      AlertType
+  message   String
+  isRead    Boolean   @default(false)
+  isEnabled Boolean   @default(true)
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@map("alerts")
+}
+
+// ────────────────────────────────
+// IA / CONVERSACIONES
+// ────────────────────────────────
+
+model AIConversation {
+  id        String      @id @default(cuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String?
+  createdAt DateTime    @default(now())
+  messages  AIMessage[]
+
+  @@index([userId])
+  @@map("ai_conversations")
+}
+
+model AIMessage {
+  id             String         @id @default(cuid())
+  conversationId String
+  conversation   AIConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           String // user | assistant
+  content        String         @db.Text
+  contextSnapshot Json? // datos financieros usados en esa respuesta
+  createdAt      DateTime       @default(now())
+
+  @@index([conversationId])
+  @@map("ai_messages")
+}
