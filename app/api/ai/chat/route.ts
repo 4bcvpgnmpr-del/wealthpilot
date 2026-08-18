@@ -10,6 +10,32 @@ const ChatSchema = z.object({
   conversationId: z.string().optional(),
 });
 
+// GET: lista las conversaciones del usuario (para el historial lateral del chat),
+// o los mensajes de una concreta si se pasa ?conversationId=
+export async function GET(req: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) return NextResponse.json({ error: "No autenticado." }, { status: 401 });
+  const userId = (session.user as any).id as string;
+
+  const conversationId = new URL(req.url).searchParams.get("conversationId");
+
+  if (conversationId) {
+    const conversation = await prisma.aIConversation.findFirst({
+      where: { id: conversationId, userId },
+      include: { messages: { orderBy: { createdAt: "asc" } } },
+    });
+    if (!conversation) return NextResponse.json({ error: "Conversación no encontrada." }, { status: 404 });
+    return NextResponse.json(conversation);
+  }
+
+  const conversations = await prisma.aIConversation.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+    select: { id: true, title: true, createdAt: true },
+  });
+  return NextResponse.json(conversations);
+}
+
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session?.user) {

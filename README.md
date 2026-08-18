@@ -120,11 +120,27 @@ Cubre el motor financiero (`lib/finance-engine/core.test.ts`): flujo mensual, pr
 - Validado contra Postgres real: usuario con 750€ disponibles y perfil EQUILIBRADO → 337,50€ ETF / 187,50€ renta fija / 112,50€ USA / 112,50€ liquidez
 - **Nota de límite**: con esta fase llegamos a 12 funciones serverless — el máximo exacto del plan Hobby de Vercel. Cualquier endpoint nuevo en el futuro requerirá consolidar alguno existente o pasar a plan Pro.
 
+## Estado — Fase 8 completa
+
+- Chat de Análisis IA en `/analisis-ia`: historial de conversaciones en el lateral, sugerencias de preguntas, respuestas en streaming visual (indicador de "escribiendo")
+- Reutiliza el endpoint `app/api/ai/chat` ya construido en Fase 1 (sin crear función nueva — seguimos en 12, el límite de Vercel Hobby) — le añadí un `GET` para listar/cargar conversaciones pasadas
+- El motor (`lib/ai/financial-assistant.ts`) construye el contexto SIEMPRE desde datos reales de la base de datos; si algo falta, el system prompt le indica a Claude decirlo explícitamente en vez de inventar cifras
+- Actualizado el modelo a `claude-sonnet-5` (el anterior estaba desactualizado)
+- Guardado de historial validado contra Postgres real: conversación + mensajes usuario/asistente
+
+## Estado — Fase 9 completa
+
+- Motor de alertas (`lib/finance-engine/alerts.ts`): reglas puras y testeadas para cada tipo del spec — disponible mensual, progreso de objetivos (50/75/100%), fondo de emergencia bajo, cambio de cartera, aportación insuficiente
+- API consolidada en `app/api/alerts/[[...id]]/route.ts`: el `GET` recalcula alertas candidatas a partir de datos reales, evita duplicados (clave `type+mensaje`), y las persiste; `PATCH` marca como leída o activa/desactiva; `DELETE` borra
+- **Para hacer sitio a esta función nueva sin superar el límite de 12 de Vercel**, eliminé `app/api/finance/summary` — era código muerto, ningún componente lo llamaba (el Dashboard y Mi Dinero ya calculan el flujo directamente en el servidor)
+- UI en `/alertas`: lista con icono por tipo, distinción visual leída/no leída, activar/desactivar por alerta, borrar
+- Validado contra Postgres real: alerta de disponible mensual (500€) y de objetivo al 60% (cruza el umbral del 50%), más verificación de que la deduplicación por `type+message` evita duplicados
+
 ## Qué falta (siguiente pasada)
 
 Siguiendo el plan de fases acordado:
 
-- Fase 8: integración con Claude (Análisis IA) — el motor ya está listo en `lib/ai/financial-assistant.ts`, falta conectar la UI de chat
+- Fase 10: primer adapter real de broker (arquitectura ya lista en `lib/brokers/adapter.ts`, todos marcados "Integración pendiente")
 - Fase 7: endpoint `/api/finance/plan` que combina objetivos + perfil + capital disponible
 - Fase 9: motor de alertas (cron/job)
 - Fase 10: implementar el primer adapter real de broker cuando se decida cuál priorizar

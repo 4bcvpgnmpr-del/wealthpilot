@@ -54,7 +54,7 @@ export async function askFinancialAssistant(userId: string, question: string) {
   const context = await buildUserFinancialContext(userId);
 
   const response = await anthropic.messages.create({
-    model: "claude-sonnet-4-6",
+    model: "claude-sonnet-5",
     max_tokens: 1000,
     system: SYSTEM_PROMPT,
     messages: [
