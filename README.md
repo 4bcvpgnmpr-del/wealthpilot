@@ -136,11 +136,20 @@ Cubre el motor financiero (`lib/finance-engine/core.test.ts`): flujo mensual, pr
 - UI en `/alertas`: lista con icono por tipo, distinción visual leída/no leída, activar/desactivar por alerta, borrar
 - Validado contra Postgres real: alerta de disponible mensual (500€) y de objetivo al 60% (cruza el umbral del 50%), más verificación de que la deduplicación por `type+message` evita duplicados
 
-## Qué falta (siguiente pasada)
+## Estado — Fase 10 completa (10 de 10 fases del plan original)
 
-Siguiendo el plan de fases acordado:
+- UI de Plataformas en `/plataformas`: lee la lista de brokers **directamente del registro real** (`BROKER_ADAPTER_REGISTRY` en `lib/brokers/adapter.ts`), no de una lista duplicada — si algún adapter pasa a implementarse de verdad, se reflejaría aquí sin tocar la página
+- Cada tarjeta muestra claramente "Integración pendiente" y explica, al pulsar "Conectar", que la arquitectura (adapters, tokenización) ya está lista pero la conexión real aún no — tal como exige el spec (sección 18: nada de integraciones simuladas)
+- **Sin endpoints nuevos**: como no hay ninguna conexión real que gestionar todavía, esta fase es puramente informativa del lado del cliente — seguimos en 12 funciones
 
-- Fase 10: primer adapter real de broker (arquitectura ya lista en `lib/brokers/adapter.ts`, todos marcados "Integración pendiente")
+## Qué falta
+
+Las 10 fases del plan de desarrollo original están completas. Quedan pendientes, para cuando se decida priorizarlas:
+
+- Implementar el primer adapter de broker real (cuando se decida cuál, y tras revisión legal del acceso a cuentas de terceros)
+- Formularios completos del flujo de onboarding guiado (spec sección 16) — actualmente el registro lleva directo al Dashboard con estados vacíos
+- Activar `ANTHROPIC_API_KEY` en producción para el chat de Análisis IA (Fase 8), pendiente de que el usuario decida sobre el coste
+- Revisión legal de los disclaimers de "propuesta orientativa" frente a normativa de asesoramiento financiero regulado (MiFID II), tal como se señaló en el análisis de arquitectura inicial, antes de cualquier lanzamiento con usuarios reales
 - Fase 7: endpoint `/api/finance/plan` que combina objetivos + perfil + capital disponible
 - Fase 9: motor de alertas (cron/job)
 - Fase 10: implementar el primer adapter real de broker cuando se decida cuál priorizar
