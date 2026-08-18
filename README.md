@@ -105,11 +105,18 @@ Cubre el motor financiero (`lib/finance-engine/core.test.ts`): flujo mensual, pr
 - UI en `/inversiones`: formulario con ticker/ISIN opcionales, categoría, cantidad, precios y fecha de compra
 - Motor de cálculo puro y testeado (`lib/finance-engine/portfolio.ts`): rentabilidad €/%, peso de cada activo, distribución por categoría — validado contra Postgres real con una cartera ETF+Bitcoin
 
+## Estado — Fase 6 completa
+
+- Simulador en `/simulador`: recálculo instantáneo en el cliente (matemática pura, sin llamada a servidor), usando `simulateThreeScenarios` de Fase 1
+- Sliders para capital inicial, aportación mensual, crecimiento anual de la aportación, años e inflación — actualiza el gráfico al instante al mover cualquiera
+- Gráfico de líneas (Recharts) con los 3 escenarios (conservador 4%, moderado 7%, optimista 9%) superpuestos
+- Tarjetas de resultado final por escenario: valor nominal, valor real ajustado a inflación, total aportado y crecimiento
+
 ## Qué falta (siguiente pasada)
 
 Siguiendo el plan de fases acordado:
 
-- Fase 6: UI del simulador (usa `simulateThreeScenarios`, ya implementado)
+- Fase 7: motor de recomendaciones (`/plan-inversion`) — combina objetivos + perfil de riesgo + capital disponible
 - Fase 7: endpoint `/api/finance/plan` que combina objetivos + perfil + capital disponible
 - Fase 9: motor de alertas (cron/job)
 - Fase 10: implementar el primer adapter real de broker cuando se decida cuál priorizar
