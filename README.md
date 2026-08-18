@@ -112,11 +112,19 @@ Cubre el motor financiero (`lib/finance-engine/core.test.ts`): flujo mensual, pr
 - Gráfico de líneas (Recharts) con los 3 escenarios (conservador 4%, moderado 7%, optimista 9%) superpuestos
 - Tarjetas de resultado final por escenario: valor nominal, valor real ajustado a inflación, total aportado y crecimiento
 
+## Estado — Fase 7 completa
+
+- Motor de asignación de inversión (`lib/finance-engine/allocation.ts`): tabla documentada de distribución base por perfil de riesgo (5 categorías × 4 clases de activo), determinista y testeada — no es una caja negra ni una IA decidiendo cifras
+- API en `app/api/investment-plan` (GET calcula sin guardar, POST genera y persiste `InvestmentPlan` + `Recommendation` con snapshot de los datos usados, para trazabilidad)
+- UI en `/plan-inversion`: capital disponible, distribución propuesta con barra de composición, **por qué** de la propuesta, **qué riesgo tiene** explícito, y el disclaimer obligatorio de "propuesta orientativa, no es una orden de inversión" (spec sección 20)
+- Validado contra Postgres real: usuario con 750€ disponibles y perfil EQUILIBRADO → 337,50€ ETF / 187,50€ renta fija / 112,50€ USA / 112,50€ liquidez
+- **Nota de límite**: con esta fase llegamos a 12 funciones serverless — el máximo exacto del plan Hobby de Vercel. Cualquier endpoint nuevo en el futuro requerirá consolidar alguno existente o pasar a plan Pro.
+
 ## Qué falta (siguiente pasada)
 
 Siguiendo el plan de fases acordado:
 
-- Fase 7: motor de recomendaciones (`/plan-inversion`) — combina objetivos + perfil de riesgo + capital disponible
+- Fase 8: integración con Claude (Análisis IA) — el motor ya está listo en `lib/ai/financial-assistant.ts`, falta conectar la UI de chat
 - Fase 7: endpoint `/api/finance/plan` que combina objetivos + perfil + capital disponible
 - Fase 9: motor de alertas (cron/job)
 - Fase 10: implementar el primer adapter real de broker cuando se decida cuál priorizar
