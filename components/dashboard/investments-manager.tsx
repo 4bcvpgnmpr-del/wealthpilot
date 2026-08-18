@@ -32,6 +32,16 @@ const emptyForm = {
   purchaseDate: new Date().toISOString().slice(0, 10),
 };
 
+const CATEGORY_COLORS: Record<string, string> = {
+  ETF: "bg-wealth-500",
+  STOCK: "bg-signal-amber",
+  FUND: "bg-ink-600",
+  BOND: "bg-mist-400",
+  DEPOSIT: "bg-mist-300",
+  CRYPTO: "bg-signal-red",
+  OTHER: "bg-ink-700",
+};
+
 export function InvestmentsManager({ initialInvestments }: { initialInvestments: Investment[] }) {
   const [investments, setInvestments] = useState(initialInvestments);
   const [form, setForm] = useState(emptyForm);
@@ -39,8 +49,6 @@ export function InvestmentsManager({ initialInvestments }: { initialInvestments:
   const [submitting, setSubmitting] = useState(false);
   const [showForm, setShowForm] = useState(initialInvestments.length === 0);
 
-  // El motor de cálculo (rentabilidad, peso por categoría) es el mismo que
-  // usamos en Fase 1, aplicado aquí a los datos reales de la cartera.
   const summary = useMemo(
     () =>
       calculatePortfolioSummary(
@@ -113,18 +121,27 @@ export function InvestmentsManager({ initialInvestments }: { initialInvestments:
       />
 
       {Object.keys(summary.weightByCategory).length > 0 && (
-        <div className="bg-white dark:bg-ink-900 border border-mist-200 dark:border-ink-700 rounded-card p-5">
-          <p className="font-medium text-sm mb-3">Distribución por categoría</p>
-          <div className="space-y-2">
+        <div className="card p-5">
+          <p className="text-sm font-medium mb-4">Distribución por categoría</p>
+          {/* Barra de composición única — más "terminal financiero" que barras separadas */}
+          <div className="h-2.5 rounded-full overflow-hidden flex mb-4">
             {Object.entries(summary.weightByCategory).map(([category, pct]) => (
-              <div key={category}>
-                <div className="flex justify-between text-xs mb-1">
-                  <span>{INVESTMENT_CATEGORIES.find((c) => c.value === category)?.label ?? category}</span>
-                  <span className="mono-data">{pct}%</span>
-                </div>
-                <div className="h-1.5 rounded-full bg-mist-100 dark:bg-ink-700 overflow-hidden">
-                  <div className="h-full bg-wealth-500" style={{ width: `${pct}%` }} />
-                </div>
+              <div
+                key={category}
+                className={CATEGORY_COLORS[category] ?? "bg-mist-400"}
+                style={{ width: `${pct}%` }}
+                title={`${category}: ${pct}%`}
+              />
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-x-5 gap-y-2">
+            {Object.entries(summary.weightByCategory).map(([category, pct]) => (
+              <div key={category} className="flex items-center gap-1.5 text-xs">
+                <span className={`w-2 h-2 rounded-full ${CATEGORY_COLORS[category] ?? "bg-mist-400"}`} />
+                <span className="text-ink-600 dark:text-mist-400">
+                  {INVESTMENT_CATEGORIES.find((c) => c.value === category)?.label ?? category}
+                </span>
+                <span className="mono-data font-medium">{pct}%</span>
               </div>
             ))}
           </div>
@@ -135,33 +152,30 @@ export function InvestmentsManager({ initialInvestments }: { initialInvestments:
         <p className="text-sm text-ink-600 dark:text-mist-400">
           {investments.length} {investments.length === 1 ? "posición" : "posiciones"}
         </p>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-card bg-ink-900 dark:bg-mist-100 text-white dark:text-ink-900 text-sm font-medium"
-        >
+        <button onClick={() => setShowForm(!showForm)} className="btn-primary">
           <i className={`ti ${showForm ? "ti-x" : "ti-plus"} text-base`} aria-hidden="true" />
           {showForm ? "Cancelar" : "Añadir inversión"}
         </button>
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-white dark:bg-ink-900 border border-mist-200 dark:border-ink-700 rounded-card p-5 space-y-3">
+        <form onSubmit={handleSubmit} className="card p-5 space-y-4">
           <div className="grid lg:grid-cols-2 gap-3">
             <div>
-              <label className="text-xs text-ink-600 dark:text-mist-400 block mb-1">Nombre</label>
+              <label className="field-label">Nombre</label>
               <input
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 placeholder="ETF MSCI World"
-                className="w-full border border-mist-300 dark:border-ink-700 bg-transparent rounded-card px-3 py-2 text-sm"
+                className="field-input"
               />
             </div>
             <div>
-              <label className="text-xs text-ink-600 dark:text-mist-400 block mb-1">Categoría</label>
+              <label className="field-label">Categoría</label>
               <select
                 value={form.category}
                 onChange={(e) => setForm({ ...form, category: e.target.value })}
-                className="w-full border border-mist-300 dark:border-ink-700 bg-transparent rounded-card px-3 py-2 text-sm"
+                className="field-input"
               >
                 {INVESTMENT_CATEGORIES.map((c) => (
                   <option key={c.value} value={c.value}>{c.label}</option>
@@ -172,97 +186,96 @@ export function InvestmentsManager({ initialInvestments }: { initialInvestments:
 
           <div className="grid lg:grid-cols-2 gap-3">
             <div>
-              <label className="text-xs text-ink-600 dark:text-mist-400 block mb-1">Ticker (opcional)</label>
+              <label className="field-label">Ticker (opcional)</label>
               <input
                 value={form.ticker}
                 onChange={(e) => setForm({ ...form, ticker: e.target.value })}
                 placeholder="VWCE"
-                className="w-full border border-mist-300 dark:border-ink-700 bg-transparent rounded-card px-3 py-2 text-sm"
+                className="field-input"
               />
             </div>
             <div>
-              <label className="text-xs text-ink-600 dark:text-mist-400 block mb-1">ISIN (opcional)</label>
+              <label className="field-label">ISIN (opcional)</label>
               <input
                 value={form.isin}
                 onChange={(e) => setForm({ ...form, isin: e.target.value })}
                 placeholder="IE00BK5BQT80"
-                className="w-full border border-mist-300 dark:border-ink-700 bg-transparent rounded-card px-3 py-2 text-sm"
+                className="field-input"
               />
             </div>
           </div>
 
           <div className="grid lg:grid-cols-4 gap-3">
             <div>
-              <label className="text-xs text-ink-600 dark:text-mist-400 block mb-1">Cantidad</label>
+              <label className="field-label">Cantidad</label>
               <input
                 type="number"
                 step="0.000001"
                 value={form.quantity}
                 onChange={(e) => setForm({ ...form, quantity: e.target.value })}
                 placeholder="10"
-                className="w-full border border-mist-300 dark:border-ink-700 bg-transparent rounded-card px-3 py-2 text-sm"
+                className="field-input"
               />
             </div>
             <div>
-              <label className="text-xs text-ink-600 dark:text-mist-400 block mb-1">Precio compra (€)</label>
+              <label className="field-label">Precio compra (€)</label>
               <input
                 type="number"
                 step="0.0001"
                 value={form.purchasePrice}
                 onChange={(e) => setForm({ ...form, purchasePrice: e.target.value })}
                 placeholder="95.50"
-                className="w-full border border-mist-300 dark:border-ink-700 bg-transparent rounded-card px-3 py-2 text-sm"
+                className="field-input"
               />
             </div>
             <div>
-              <label className="text-xs text-ink-600 dark:text-mist-400 block mb-1">Precio actual (€)</label>
+              <label className="field-label">Precio actual (€)</label>
               <input
                 type="number"
                 step="0.0001"
                 value={form.currentPrice}
                 onChange={(e) => setForm({ ...form, currentPrice: e.target.value })}
                 placeholder="102.30"
-                className="w-full border border-mist-300 dark:border-ink-700 bg-transparent rounded-card px-3 py-2 text-sm"
+                className="field-input"
               />
             </div>
             <div>
-              <label className="text-xs text-ink-600 dark:text-mist-400 block mb-1">Fecha de compra</label>
+              <label className="field-label">Fecha de compra</label>
               <input
                 type="date"
                 value={form.purchaseDate}
                 onChange={(e) => setForm({ ...form, purchaseDate: e.target.value })}
-                className="w-full border border-mist-300 dark:border-ink-700 bg-transparent rounded-card px-3 py-2 text-sm"
+                className="field-input"
               />
             </div>
           </div>
 
           {error && <p className="text-xs text-signal-red">{error}</p>}
-          <button
-            type="submit"
-            disabled={submitting}
-            className="bg-wealth-500 text-white rounded-card px-5 py-2 text-sm font-medium disabled:opacity-60"
-          >
+          <button type="submit" disabled={submitting} className="btn-accent">
             {submitting ? "Guardando..." : "Añadir inversión"}
           </button>
         </form>
       )}
 
       {summary.investments.length === 0 && !showForm ? (
-        <div className="bg-white dark:bg-ink-900 border border-dashed border-mist-300 dark:border-ink-700 rounded-card p-8 text-center">
+        <div className="border border-dashed border-mist-300 dark:border-ink-700 rounded-card p-8 text-center">
           <p className="font-medium mb-1">Todavía no tienes inversiones</p>
           <p className="text-sm text-ink-600 dark:text-mist-400">Añade una para ver tu cartera aquí.</p>
         </div>
       ) : (
-        <div className="bg-white dark:bg-ink-900 border border-mist-200 dark:border-ink-700 rounded-card divide-y divide-mist-200 dark:divide-ink-700">
+        <div className="card divide-y divide-mist-100 dark:divide-ink-700">
           {summary.investments.map((inv) => (
-            <div key={inv.id} className="flex items-center justify-between p-4">
-              <div>
-                <p className="text-sm font-medium">{inv.name}</p>
-                <p className="text-xs text-ink-600 dark:text-mist-400">
-                  {INVESTMENT_CATEGORIES.find((c) => c.value === inv.category)?.label} · {inv.quantity} uds · peso {inv.weightPct}%
-                </p>
+            <div key={inv.id} className="group flex items-center justify-between p-4">
+              <div className="flex items-center gap-3 min-w-0">
+                <span className={`w-2 h-2 rounded-full shrink-0 ${CATEGORY_COLORS[inv.category] ?? "bg-mist-400"}`} />
+                <div className="min-w-0">
+                  <p className="text-sm font-medium truncate">{inv.name}</p>
+                  <p className="text-xs text-ink-600 dark:text-mist-400 mt-0.5">
+                    {INVESTMENT_CATEGORIES.find((c) => c.value === inv.category)?.label} · {inv.quantity} uds · peso {inv.weightPct}%
+                  </p>
+                </div>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 shrink-0">
                 <div className="text-right">
                   <p className="mono-data text-sm font-medium">{formatEUR(inv.currentValue)}</p>
                   <p className={`mono-data text-xs ${inv.gainLoss >= 0 ? "text-wealth-500" : "text-signal-red"}`}>
@@ -273,7 +286,7 @@ export function InvestmentsManager({ initialInvestments }: { initialInvestments:
                 <button
                   onClick={() => handleDelete(inv.id)}
                   aria-label={`Eliminar ${inv.name}`}
-                  className="text-ink-600 dark:text-mist-400 hover:text-signal-red transition-colors"
+                  className="text-mist-300 dark:text-ink-600 hover:text-signal-red transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
                 >
                   <i className="ti ti-trash text-base" aria-hidden="true" />
                 </button>

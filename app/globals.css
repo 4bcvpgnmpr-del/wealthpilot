@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap");
 
 :root {
   color-scheme: light dark;
@@ -12,14 +12,71 @@ body {
   @apply bg-mist-100 text-ink-900 dark:bg-ink-950 dark:text-mist-100 font-sans antialiased;
 }
 
-/* Números grandes de patrimonio/flujo — la voz tipográfica distintiva del producto */
+/* ── Voz tipográfica distintiva: cifras grandes en Fraunces, tabulares ── */
 .figure {
   font-family: "Fraunces", serif;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
 }
 
 .mono-data {
   font-family: "IBM Plex Mono", monospace;
   font-variant-numeric: tabular-nums;
 }
+
+/* Etiqueta tipo terminal financiero: mayúsculas, tracking amplio, mono */
+.eyebrow {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Regla de "libro mayor": divisor punteado fino, como un extracto bancario.
+   Elemento firma de la app — se usa entre secciones del dashboard. */
+.ledger-rule {
+  height: 1px;
+  background-image: linear-gradient(to right, currentColor 33%, rgba(255, 255, 255, 0) 0%);
+  background-position: bottom;
+  background-size: 6px 1px;
+  background-repeat: repeat-x;
+  @apply text-mist-200 dark:text-ink-700;
+}
+
+/* ── Componentes reutilizables (@apply) para consistencia en toda la app ── */
+.card {
+  @apply bg-white dark:bg-ink-900 border border-mist-200/70 dark:border-ink-700 rounded-card shadow-card;
+}
+
+.card-interactive {
+  @apply card transition-shadow hover:shadow-card-hover;
+}
+
+.field-label {
+  @apply text-xs font-medium text-ink-600 dark:text-mist-400 block mb-1.5;
+}
+
+.field-input {
+  @apply w-full border border-mist-200 dark:border-ink-700 bg-white dark:bg-ink-800 rounded-lg px-3 py-2 text-sm
+    text-ink-900 dark:text-mist-100 placeholder:text-mist-300 dark:placeholder:text-ink-600
+    transition-colors focus:outline-none focus:border-wealth-500 focus:ring-1 focus:ring-wealth-500/30;
+}
+
+.btn-primary {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg bg-ink-900 dark:bg-mist-100
+    text-white dark:text-ink-900 text-sm font-medium px-4 py-2.5
+    transition-colors hover:bg-ink-800 dark:hover:bg-white disabled:opacity-50;
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg border border-mist-200 dark:border-ink-700
+    bg-white dark:bg-ink-800 text-ink-900 dark:text-mist-100 text-sm font-medium px-4 py-2.5
+    transition-colors hover:border-mist-300 dark:hover:border-ink-600;
+}
+
+.btn-accent {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg bg-wealth-500 text-white text-sm font-medium
+    px-4 py-2.5 transition-colors hover:bg-wealth-500/90 disabled:opacity-50;
+}
+

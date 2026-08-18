@@ -54,26 +54,27 @@ export default async function MiDineroPage() {
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       <header>
-        <h1 className="figure text-2xl font-medium mb-1">Mi dinero</h1>
+        <p className="eyebrow text-mist-400 mb-2">Gestión financiera</p>
+        <h1 className="figure text-3xl font-medium mb-1">Mi dinero</h1>
         <p className="text-sm text-ink-600 dark:text-mist-400">
           Introduce tus ingresos, gastos, ahorros y deudas. El resto de la app se calcula a partir de estos datos.
         </p>
       </header>
 
       {flow && (
-        <section className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-          <div className="bg-white dark:bg-ink-900 border border-mist-200 dark:border-ink-700 rounded-card p-4">
-            <p className="text-xs text-ink-600 dark:text-mist-400 mb-1">Capacidad de ahorro</p>
+        <section className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="card p-4">
+            <p className="eyebrow text-mist-400 mb-2">Capacidad de ahorro</p>
             <p className={`figure text-2xl font-medium ${flow.savingsCapacity >= 0 ? "text-wealth-500" : "text-signal-red"}`}>
               {formatEUR(flow.savingsCapacity)}
             </p>
           </div>
-          <div className="bg-white dark:bg-ink-900 border border-mist-200 dark:border-ink-700 rounded-card p-4">
-            <p className="text-xs text-ink-600 dark:text-mist-400 mb-1">Disponible para invertir</p>
+          <div className="card p-4">
+            <p className="eyebrow text-mist-400 mb-2">Disponible para invertir</p>
             <p className="figure text-2xl font-medium text-wealth-500">{formatEUR(flow.availableToInvest)}</p>
           </div>
-          <div className="bg-white dark:bg-ink-900 border border-mist-200 dark:border-ink-700 rounded-card p-4 col-span-2 lg:col-span-1">
-            <p className="text-xs text-ink-600 dark:text-mist-400 mb-1">Deudas totales</p>
+          <div className="card p-4 col-span-2 lg:col-span-1">
+            <p className="eyebrow text-mist-400 mb-2">Deudas totales</p>
             <p className="figure text-2xl font-medium">
               {formatEUR(liabilities.reduce((s, l) => s + Number(l.outstanding), 0))}
             </p>

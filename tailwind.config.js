@@ -5,31 +5,31 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Paleta propia: azul noche profundo + verde patrimonio (crecimiento) + ámbar (alertas)
-        // Deliberadamente NO usamos el terracota/crema por defecto de IA — este es un producto
-        // financiero serio, referencia visual: Bloomberg terminal + Revolut, sobrio y denso en datos.
+        // Paleta propia: navy casi negro + esmeralda (crecimiento) + ámbar/rojo (alertas).
+        // Deliberadamente NO usamos crema+terracota (el look por defecto de IA) — este es
+        // un producto financiero serio, referencia: terminal Bloomberg + Revolut, sobrio,
+        // denso en datos, con "paper" frío en vez de cálido.
         ink: {
-          950: "#0A0E14",
-          900: "#0F1520",
-          800: "#161D2C",
-          700: "#212B3D",
-          600: "#334059",
+          950: "#05070C",
+          900: "#0B0F17",
+          800: "#131924",
+          700: "#1E2633",
+          600: "#313D4E",
         },
         mist: {
-          400: "#8B94A8",
-          300: "#AEB5C4",
-          200: "#D4D8E0",
-          100: "#EEF0F4",
+          400: "#7C8798",
+          300: "#A6AFBD",
+          200: "#D7DBE2",
+          100: "#F6F7F9",
         },
         wealth: {
-          // verde "patrimonio" — crecimiento, positivo
-          500: "#1FA97C",
-          400: "#3DC494",
-          100: "#DFF5EC",
+          500: "#0E9F6E",
+          400: "#34C28F",
+          100: "#E3F8EF",
         },
         signal: {
-          amber: "#E8A33D",
-          red: "#E15B5B",
+          amber: "#D97706",
+          red: "#DC2626",
         },
       },
       fontFamily: {
@@ -37,10 +37,18 @@ module.exports = {
         sans: ["'Inter'", "sans-serif"],
         mono: ["'IBM Plex Mono'", "monospace"],
       },
+      letterSpacing: {
+        eyebrow: "0.08em",
+      },
       borderRadius: {
         card: "14px",
+      },
+      boxShadow: {
+        card: "0 1px 2px 0 rgb(11 15 23 / 0.04), 0 1px 1px 0 rgb(11 15 23 / 0.03)",
+        "card-hover": "0 4px 16px -4px rgb(11 15 23 / 0.10)",
       },
     },
   },
   plugins: [],
 };
+

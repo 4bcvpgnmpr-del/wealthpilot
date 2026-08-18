@@ -85,33 +85,30 @@ export function GoalsManager({ initialGoals }: { initialGoals: Goal[] }) {
         <p className="text-sm text-ink-600 dark:text-mist-400">
           {goals.length} {goals.length === 1 ? "objetivo" : "objetivos"}
         </p>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-card bg-ink-900 dark:bg-mist-100 text-white dark:text-ink-900 text-sm font-medium"
-        >
+        <button onClick={() => setShowForm(!showForm)} className="btn-primary">
           <i className={`ti ${showForm ? "ti-x" : "ti-plus"} text-base`} aria-hidden="true" />
           {showForm ? "Cancelar" : "Nuevo objetivo"}
         </button>
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-white dark:bg-ink-900 border border-mist-200 dark:border-ink-700 rounded-card p-5 space-y-3">
+        <form onSubmit={handleSubmit} className="card p-5 space-y-4">
           <div className="grid lg:grid-cols-2 gap-3">
             <div>
-              <label className="text-xs text-ink-600 dark:text-mist-400 block mb-1">Nombre</label>
+              <label className="field-label">Nombre</label>
               <input
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 placeholder="Fondo de emergencia"
-                className="w-full border border-mist-300 dark:border-ink-700 bg-transparent rounded-card px-3 py-2 text-sm"
+                className="field-input"
               />
             </div>
             <div>
-              <label className="text-xs text-ink-600 dark:text-mist-400 block mb-1">Tipo</label>
+              <label className="field-label">Tipo</label>
               <select
                 value={form.type}
                 onChange={(e) => setForm({ ...form, type: e.target.value })}
-                className="w-full border border-mist-300 dark:border-ink-700 bg-transparent rounded-card px-3 py-2 text-sm"
+                className="field-input"
               >
                 {GOAL_TYPES.map((t) => (
                   <option key={t.value} value={t.value}>{t.label}</option>
@@ -122,56 +119,56 @@ export function GoalsManager({ initialGoals }: { initialGoals: Goal[] }) {
 
           <div className="grid lg:grid-cols-3 gap-3">
             <div>
-              <label className="text-xs text-ink-600 dark:text-mist-400 block mb-1">Cantidad objetivo (€)</label>
+              <label className="field-label">Cantidad objetivo (€)</label>
               <input
                 type="number"
                 step="0.01"
                 value={form.targetAmount}
                 onChange={(e) => setForm({ ...form, targetAmount: e.target.value })}
                 placeholder="6000"
-                className="w-full border border-mist-300 dark:border-ink-700 bg-transparent rounded-card px-3 py-2 text-sm"
+                className="field-input"
               />
             </div>
             <div>
-              <label className="text-xs text-ink-600 dark:text-mist-400 block mb-1">Cantidad actual (€)</label>
+              <label className="field-label">Cantidad actual (€)</label>
               <input
                 type="number"
                 step="0.01"
                 value={form.currentAmount}
                 onChange={(e) => setForm({ ...form, currentAmount: e.target.value })}
                 placeholder="0"
-                className="w-full border border-mist-300 dark:border-ink-700 bg-transparent rounded-card px-3 py-2 text-sm"
+                className="field-input"
               />
             </div>
             <div>
-              <label className="text-xs text-ink-600 dark:text-mist-400 block mb-1">Aportación mensual (€)</label>
+              <label className="field-label">Aportación mensual (€)</label>
               <input
                 type="number"
                 step="0.01"
                 value={form.monthlyContribution}
                 onChange={(e) => setForm({ ...form, monthlyContribution: e.target.value })}
                 placeholder="150"
-                className="w-full border border-mist-300 dark:border-ink-700 bg-transparent rounded-card px-3 py-2 text-sm"
+                className="field-input"
               />
             </div>
           </div>
 
           <div className="grid lg:grid-cols-3 gap-3">
             <div>
-              <label className="text-xs text-ink-600 dark:text-mist-400 block mb-1">Fecha objetivo</label>
+              <label className="field-label">Fecha objetivo</label>
               <input
                 type="date"
                 value={form.targetDate}
                 onChange={(e) => setForm({ ...form, targetDate: e.target.value })}
-                className="w-full border border-mist-300 dark:border-ink-700 bg-transparent rounded-card px-3 py-2 text-sm"
+                className="field-input"
               />
             </div>
             <div>
-              <label className="text-xs text-ink-600 dark:text-mist-400 block mb-1">Prioridad</label>
+              <label className="field-label">Prioridad</label>
               <select
                 value={form.priority}
                 onChange={(e) => setForm({ ...form, priority: e.target.value })}
-                className="w-full border border-mist-300 dark:border-ink-700 bg-transparent rounded-card px-3 py-2 text-sm"
+                className="field-input"
               >
                 {GOAL_PRIORITIES.map((p) => (
                   <option key={p.value} value={p.value}>{p.label}</option>
@@ -179,11 +176,11 @@ export function GoalsManager({ initialGoals }: { initialGoals: Goal[] }) {
               </select>
             </div>
             <div>
-              <label className="text-xs text-ink-600 dark:text-mist-400 block mb-1">Riesgo permitido</label>
+              <label className="field-label">Riesgo permitido</label>
               <select
                 value={form.riskTolerance}
                 onChange={(e) => setForm({ ...form, riskTolerance: e.target.value })}
-                className="w-full border border-mist-300 dark:border-ink-700 bg-transparent rounded-card px-3 py-2 text-sm"
+                className="field-input"
               >
                 <option value="">Sin especificar</option>
                 {RISK_TOLERANCE_OPTIONS.map((r) => (
@@ -194,18 +191,14 @@ export function GoalsManager({ initialGoals }: { initialGoals: Goal[] }) {
           </div>
 
           {error && <p className="text-xs text-signal-red">{error}</p>}
-          <button
-            type="submit"
-            disabled={submitting}
-            className="bg-wealth-500 text-white rounded-card px-5 py-2 text-sm font-medium disabled:opacity-60"
-          >
+          <button type="submit" disabled={submitting} className="btn-accent">
             {submitting ? "Guardando..." : "Crear objetivo"}
           </button>
         </form>
       )}
 
       {goals.length === 0 && !showForm ? (
-        <div className="bg-white dark:bg-ink-900 border border-dashed border-mist-300 dark:border-ink-700 rounded-card p-8 text-center">
+        <div className="border border-dashed border-mist-300 dark:border-ink-700 rounded-card p-8 text-center">
           <p className="font-medium mb-1">Todavía no tienes objetivos</p>
           <p className="text-sm text-ink-600 dark:text-mist-400">
             Crea uno para hacer seguimiento de tu progreso.

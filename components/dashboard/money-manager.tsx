@@ -8,10 +8,10 @@ import { AssetsTab } from "./assets-tab";
 import { LiabilitiesTab } from "./liabilities-tab";
 
 const TABS = [
-  { key: "ingresos", label: "Ingresos" },
-  { key: "gastos", label: "Gastos" },
-  { key: "ahorros", label: "Ahorros" },
-  { key: "deudas", label: "Deudas" },
+  { key: "ingresos", label: "Ingresos", icon: "ti-arrow-down-circle" },
+  { key: "gastos", label: "Gastos", icon: "ti-arrow-up-circle" },
+  { key: "ahorros", label: "Ahorros", icon: "ti-pig-money" },
+  { key: "deudas", label: "Deudas", icon: "ti-credit-card" },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
@@ -21,18 +21,19 @@ export function MoneyManager({ initialData }: { initialData: any }) {
 
   return (
     <div>
-      <div className="flex gap-1 mb-6 border-b border-mist-200 dark:border-ink-700">
+      <div className="flex gap-1 mb-6 p-1 bg-mist-200/60 dark:bg-ink-800 rounded-lg w-fit">
         {TABS.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
             className={clsx(
-              "px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors",
+              "flex items-center gap-1.5 px-3.5 py-1.5 rounded-md text-[13px] font-medium transition-all",
               activeTab === tab.key
-                ? "border-wealth-500 text-ink-900 dark:text-mist-100"
-                : "border-transparent text-ink-600 dark:text-mist-400"
+                ? "bg-white dark:bg-ink-700 text-ink-900 dark:text-mist-100 shadow-sm"
+                : "text-ink-600 dark:text-mist-400 hover:text-ink-900 dark:hover:text-mist-200"
             )}
           >
+            <i className={`ti ${tab.icon} text-[15px]`} aria-hidden="true" />
             {tab.label}
           </button>
         ))}

@@ -86,33 +86,37 @@ export function RiskQuestionnaire({ existingResult }: { existingResult: RiskResu
 
   if (result && !retaking) {
     return (
-      <div className="bg-white dark:bg-ink-900 border border-mist-200 dark:border-ink-700 rounded-card p-6">
-        <p className="text-sm text-ink-600 dark:text-mist-400 mb-1">Tu perfil de riesgo</p>
-        <p className={`figure text-3xl font-medium mb-3 ${CATEGORY_COLOR[result.category]}`}>
+      <div className="card p-7">
+        <p className="eyebrow text-mist-400 mb-2">Tu perfil de riesgo</p>
+        <p className={`figure text-4xl font-medium mb-4 ${CATEGORY_COLOR[result.category]}`}>
           {result.category.charAt(0) + result.category.slice(1).toLowerCase()}
         </p>
-        <p className="text-sm text-ink-600 dark:text-mist-400 mb-4">{result.explanation}</p>
+        <p className="text-sm text-ink-600 dark:text-mist-400 mb-5 leading-relaxed">{result.explanation}</p>
 
-        <details className="mb-4">
-          <summary className="text-xs font-medium cursor-pointer text-ink-600 dark:text-mist-400">
+        <details className="mb-5 group">
+          <summary className="text-xs font-medium cursor-pointer text-ink-600 dark:text-mist-400 flex items-center gap-1.5">
+            <i className="ti ti-chevron-right text-sm transition-transform group-open:rotate-90" aria-hidden="true" />
             Ver cómo se calculó (puntuación: {result.score}/100)
           </summary>
-          <div className="mt-3 space-y-2">
+          <div className="mt-4 space-y-2.5 pl-5">
             {result.breakdown.map((b) => (
-              <div key={b.key} className="flex justify-between text-xs">
-                <span className="text-ink-600 dark:text-mist-400">
-                  {QUESTION_LABEL[b.key] ?? b.key} (peso {Math.round(b.weight * 100)}%)
-                </span>
-                <span className="mono-data">{Math.round(b.rawScore)}/100</span>
+              <div key={b.key}>
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="text-ink-600 dark:text-mist-400">
+                    {QUESTION_LABEL[b.key] ?? b.key} <span className="text-mist-300 dark:text-ink-600">· peso {Math.round(b.weight * 100)}%</span>
+                  </span>
+                  <span className="mono-data">{Math.round(b.rawScore)}/100</span>
+                </div>
+                <div className="h-1 rounded-full bg-mist-100 dark:bg-ink-700 overflow-hidden">
+                  <div className="h-full bg-mist-400 dark:bg-ink-600" style={{ width: `${b.rawScore}%` }} />
+                </div>
               </div>
             ))}
           </div>
         </details>
 
-        <button
-          onClick={() => setRetaking(true)}
-          className="text-sm font-medium text-ink-900 dark:text-mist-100 underline"
-        >
+        <button onClick={() => setRetaking(true)} className="btn-secondary">
+          <i className="ti ti-refresh text-base" aria-hidden="true" />
           Repetir cuestionario
         </button>
       </div>
@@ -120,21 +124,20 @@ export function RiskQuestionnaire({ existingResult }: { existingResult: RiskResu
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white dark:bg-ink-900 border border-mist-200 dark:border-ink-700 rounded-card p-6 space-y-5">
+    <form onSubmit={handleSubmit} className="card p-7 space-y-6">
       <div>
-        <label className="text-sm font-medium block mb-1">Edad</label>
+        <label className="field-label">Edad</label>
         <input
           type="number"
           value={answers.age}
           onChange={(e) => setAnswers({ ...answers, age: e.target.value ? Number(e.target.value) : "" })}
           placeholder="34"
-          className="w-full border border-mist-300 dark:border-ink-700 bg-transparent rounded-card px-3 py-2 text-sm"
+          className="field-input"
         />
       </div>
 
       <RadioGroup
         label="¿Cuánta experiencia tienes invirtiendo?"
-        name="investingExperience"
         value={answers.investingExperience}
         onChange={(v) => setAnswers({ ...answers, investingExperience: v })}
         options={[
@@ -146,19 +149,18 @@ export function RiskQuestionnaire({ existingResult }: { existingResult: RiskResu
       />
 
       <div>
-        <label className="text-sm font-medium block mb-1">¿Cuál es tu horizonte temporal? (años)</label>
+        <label className="field-label">¿Cuál es tu horizonte temporal? (años)</label>
         <input
           type="number"
           value={answers.timeHorizonYears}
           onChange={(e) => setAnswers({ ...answers, timeHorizonYears: e.target.value ? Number(e.target.value) : "" })}
           placeholder="10"
-          className="w-full border border-mist-300 dark:border-ink-700 bg-transparent rounded-card px-3 py-2 text-sm"
+          className="field-input"
         />
       </div>
 
       <RadioGroup
         label="Si tu cartera cae un 20% en un mes, ¿qué haces?"
-        name="lossReactionScenario"
         value={answers.lossReactionScenario}
         onChange={(v) => setAnswers({ ...answers, lossReactionScenario: v })}
         options={[
@@ -171,7 +173,6 @@ export function RiskQuestionnaire({ existingResult }: { existingResult: RiskResu
 
       <RadioGroup
         label="¿Cuánta liquidez necesitas a corto plazo?"
-        name="liquidityNeed"
         value={answers.liquidityNeed}
         onChange={(v) => setAnswers({ ...answers, liquidityNeed: v })}
         options={[
@@ -183,7 +184,6 @@ export function RiskQuestionnaire({ existingResult }: { existingResult: RiskResu
 
       <RadioGroup
         label="¿Cuál es tu objetivo principal?"
-        name="primaryGoal"
         value={answers.primaryGoal}
         onChange={(v) => setAnswers({ ...answers, primaryGoal: v })}
         options={[
@@ -194,11 +194,7 @@ export function RiskQuestionnaire({ existingResult }: { existingResult: RiskResu
       />
 
       {error && <p className="text-xs text-signal-red">{error}</p>}
-      <button
-        type="submit"
-        disabled={submitting}
-        className="w-full bg-ink-900 dark:bg-mist-100 text-white dark:text-ink-900 rounded-card py-2.5 text-sm font-medium disabled:opacity-60"
-      >
+      <button type="submit" disabled={submitting} className="btn-primary w-full py-3">
         {submitting ? "Calculando..." : "Calcular mi perfil"}
       </button>
     </form>
@@ -207,30 +203,28 @@ export function RiskQuestionnaire({ existingResult }: { existingResult: RiskResu
 
 function RadioGroup({
   label,
-  name,
   value,
   onChange,
   options,
 }: {
   label: string;
-  name: string;
   value: string;
   onChange: (v: string) => void;
   options: { value: string; label: string }[];
 }) {
   return (
     <div>
-      <label className="text-sm font-medium block mb-2">{label}</label>
+      <label className="field-label mb-2">{label}</label>
       <div className="grid grid-cols-2 gap-2">
         {options.map((opt) => (
           <button
             key={opt.value}
             type="button"
             onClick={() => onChange(opt.value)}
-            className={`text-sm px-3 py-2 rounded-card border text-left transition-colors ${
+            className={`text-sm px-3.5 py-2.5 rounded-lg border text-left transition-all ${
               value === opt.value
-                ? "border-wealth-500 bg-wealth-100 dark:bg-ink-700 text-wealth-500 font-medium"
-                : "border-mist-300 dark:border-ink-700 text-ink-600 dark:text-mist-300"
+                ? "border-wealth-500 bg-wealth-100 dark:bg-wealth-500/10 text-wealth-500 font-medium ring-1 ring-wealth-500/20"
+                : "border-mist-200 dark:border-ink-700 text-ink-600 dark:text-mist-300 hover:border-mist-300 dark:hover:border-ink-600"
             }`}
           >
             {opt.label}

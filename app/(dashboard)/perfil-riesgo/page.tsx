@@ -25,7 +25,8 @@ export default async function PerfilRiesgoPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <header>
-        <h1 className="figure text-2xl font-medium mb-1">Perfil del inversor</h1>
+        <p className="eyebrow text-mist-400 mb-2">Estrategia</p>
+        <h1 className="figure text-3xl font-medium mb-1">Perfil del inversor</h1>
         <p className="text-sm text-ink-600 dark:text-mist-400">
           Unas preguntas para orientar tu plan de inversión a tu situación real.
         </p>

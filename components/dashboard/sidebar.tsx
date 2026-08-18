@@ -22,11 +22,14 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:shrink-0 border-r border-mist-200 dark:border-ink-700 bg-white dark:bg-ink-900 px-4 py-6">
-      <div className="px-2 mb-8">
-        <span className="figure text-xl font-medium">WealthPilot</span>
+    <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:shrink-0 bg-ink-950 px-4 py-6">
+      <div className="px-2 mb-8 flex items-center gap-2.5">
+        <div className="w-7 h-7 rounded-md bg-wealth-500 flex items-center justify-center shrink-0">
+          <i className="ti ti-compass text-ink-950 text-base" aria-hidden="true" />
+        </div>
+        <span className="figure text-lg font-medium text-white tracking-tight">WealthPilot</span>
       </div>
-      <nav className="flex flex-col gap-1">
+      <nav className="flex flex-col gap-0.5">
         {NAV_ITEMS.map((item) => {
           const active = pathname?.startsWith(item.href);
           return (
@@ -34,13 +37,13 @@ export function Sidebar() {
               key={item.href}
               href={item.href}
               className={clsx(
-                "flex items-center gap-3 px-3 py-2 rounded-card text-sm transition-colors",
+                "flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] transition-colors border-l-2",
                 active
-                  ? "bg-wealth-100 text-wealth-500 dark:bg-ink-700 dark:text-wealth-400 font-medium"
-                  : "text-ink-600 dark:text-mist-300 hover:bg-mist-100 dark:hover:bg-ink-800"
+                  ? "bg-white/[0.06] text-white font-medium border-wealth-500"
+                  : "text-mist-400 border-transparent hover:bg-white/[0.03] hover:text-mist-200"
               )}
             >
-              <i className={`ti ${item.icon} text-base`} aria-hidden="true" />
+              <i className={`ti ${item.icon} text-[15px]`} aria-hidden="true" />
               {item.label}
             </Link>
           );

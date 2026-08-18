@@ -48,25 +48,27 @@ export function AssetsTab({ initialAssets }: { initialAssets: Asset[] }) {
     await fetch(`/api/assets/${id}`, { method: "DELETE" });
   }
 
+  const total = assets.reduce((sum, a) => sum + Number(a.amount), 0);
+
   return (
-    <div className="grid lg:grid-cols-[1fr_1.4fr] gap-6">
-      <form onSubmit={handleSubmit} className="bg-white dark:bg-ink-900 border border-mist-200 dark:border-ink-700 rounded-card p-5 space-y-3 h-fit">
-        <p className="font-medium text-sm mb-1">Añadir activo</p>
+    <div className="grid lg:grid-cols-[340px_1fr] gap-5">
+      <form onSubmit={handleSubmit} className="card p-5 space-y-4 h-fit">
+        <p className="text-sm font-medium">Añadir activo</p>
         <div>
-          <label className="text-xs text-ink-600 dark:text-mist-400 block mb-1">Nombre</label>
+          <label className="field-label">Nombre</label>
           <input
             value={form.label}
             onChange={(e) => setForm({ ...form, label: e.target.value })}
             placeholder="Cuenta corriente BBVA"
-            className="w-full border border-mist-300 dark:border-ink-700 bg-transparent rounded-card px-3 py-2 text-sm"
+            className="field-input"
           />
         </div>
         <div>
-          <label className="text-xs text-ink-600 dark:text-mist-400 block mb-1">Tipo</label>
+          <label className="field-label">Tipo</label>
           <select
             value={form.type}
             onChange={(e) => setForm({ ...form, type: e.target.value })}
-            className="w-full border border-mist-300 dark:border-ink-700 bg-transparent rounded-card px-3 py-2 text-sm"
+            className="field-input"
           >
             {ASSET_TYPES.map((t) => (
               <option key={t.value} value={t.value}>{t.label}</option>
@@ -74,42 +76,45 @@ export function AssetsTab({ initialAssets }: { initialAssets: Asset[] }) {
           </select>
         </div>
         <div>
-          <label className="text-xs text-ink-600 dark:text-mist-400 block mb-1">Importe (€)</label>
+          <label className="field-label">Importe (€)</label>
           <input
             type="number"
             step="0.01"
             value={form.amount}
             onChange={(e) => setForm({ ...form, amount: e.target.value })}
             placeholder="5000"
-            className="w-full border border-mist-300 dark:border-ink-700 bg-transparent rounded-card px-3 py-2 text-sm"
+            className="field-input"
           />
         </div>
         {error && <p className="text-xs text-signal-red">{error}</p>}
-        <button
-          type="submit"
-          disabled={submitting}
-          className="w-full bg-ink-900 dark:bg-mist-100 text-white dark:text-ink-900 rounded-card py-2 text-sm font-medium disabled:opacity-60"
-        >
+        <button type="submit" disabled={submitting} className="btn-primary w-full">
           {submitting ? "Guardando..." : "Añadir activo"}
         </button>
       </form>
 
-      <div className="bg-white dark:bg-ink-900 border border-mist-200 dark:border-ink-700 rounded-card p-5">
-        <p className="font-medium text-sm mb-2">Tus ahorros y activos</p>
+      <div className="card p-5">
+        <div className="flex items-baseline justify-between mb-1">
+          <p className="text-sm font-medium">Tus ahorros y activos</p>
+          {assets.length > 0 && (
+            <p className="mono-data text-sm text-wealth-500 font-medium">{formatEUR(total)}</p>
+          )}
+        </div>
         {assets.length === 0 ? (
-          <p className="text-sm text-ink-600 dark:text-mist-400 py-6 text-center">
+          <p className="text-sm text-ink-600 dark:text-mist-400 py-10 text-center">
             Todavía no has añadido ningún activo.
           </p>
         ) : (
-          assets.map((a) => (
-            <MoneyRow
-              key={a.id}
-              label={a.label}
-              meta={ASSET_TYPES.find((t) => t.value === a.type)?.label ?? a.type}
-              amount={formatEUR(Number(a.amount))}
-              onDelete={() => handleDelete(a.id)}
-            />
-          ))
+          <div className="mt-2">
+            {assets.map((a) => (
+              <MoneyRow
+                key={a.id}
+                label={a.label}
+                meta={ASSET_TYPES.find((t) => t.value === a.type)?.label ?? a.type}
+                amount={formatEUR(Number(a.amount))}
+                onDelete={() => handleDelete(a.id)}
+              />
+            ))}
+          </div>
         )}
       </div>
     </div>

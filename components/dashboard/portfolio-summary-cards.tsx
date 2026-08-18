@@ -18,25 +18,25 @@ export function PortfolioSummaryCards({
   const positive = totalGainLoss >= 0;
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      <div className="bg-white dark:bg-ink-900 border border-mist-200 dark:border-ink-700 rounded-card p-4">
-        <p className="text-xs text-ink-600 dark:text-mist-400 mb-1">Valor actual</p>
-        <p className="figure text-2xl font-medium">{formatEUR(totalCurrentValue)}</p>
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="card p-5">
+        <p className="eyebrow text-mist-400 mb-2">Valor actual</p>
+        <p className="figure text-[26px] leading-none font-medium">{formatEUR(totalCurrentValue)}</p>
       </div>
-      <div className="bg-white dark:bg-ink-900 border border-mist-200 dark:border-ink-700 rounded-card p-4">
-        <p className="text-xs text-ink-600 dark:text-mist-400 mb-1">Aportado</p>
-        <p className="figure text-2xl font-medium">{formatEUR(totalCostBasis)}</p>
+      <div className="card p-5">
+        <p className="eyebrow text-mist-400 mb-2">Aportado</p>
+        <p className="figure text-[26px] leading-none font-medium">{formatEUR(totalCostBasis)}</p>
       </div>
-      <div className="bg-white dark:bg-ink-900 border border-mist-200 dark:border-ink-700 rounded-card p-4">
-        <p className="text-xs text-ink-600 dark:text-mist-400 mb-1">Rentabilidad</p>
-        <p className={`figure text-2xl font-medium ${positive ? "text-wealth-500" : "text-signal-red"}`}>
+      <div className="card p-5">
+        <p className="eyebrow text-mist-400 mb-2">Rentabilidad</p>
+        <p className={`figure text-[26px] leading-none font-medium ${positive ? "text-wealth-500" : "text-signal-red"}`}>
           {positive ? "+" : ""}
           {formatEUR(totalGainLoss)}
         </p>
       </div>
-      <div className="bg-white dark:bg-ink-900 border border-mist-200 dark:border-ink-700 rounded-card p-4">
-        <p className="text-xs text-ink-600 dark:text-mist-400 mb-1">Rentabilidad %</p>
-        <p className={`figure text-2xl font-medium ${positive ? "text-wealth-500" : "text-signal-red"}`}>
+      <div className="card p-5">
+        <p className="eyebrow text-mist-400 mb-2">Rentabilidad %</p>
+        <p className={`figure text-[26px] leading-none font-medium ${positive ? "text-wealth-500" : "text-signal-red"}`}>
           {positive ? "+" : ""}
           {totalGainLossPct.toFixed(1)}%
         </p>

@@ -25,7 +25,8 @@ export default async function ObjetivosPage() {
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       <header>
-        <h1 className="figure text-2xl font-medium mb-1">Objetivos</h1>
+        <p className="eyebrow text-mist-400 mb-2">Planificación</p>
+        <h1 className="figure text-3xl font-medium mb-1">Objetivos</h1>
         <p className="text-sm text-ink-600 dark:text-mist-400">
           Crea objetivos y haz seguimiento de tu progreso hacia cada uno.
         </p>

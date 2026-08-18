@@ -8,15 +8,11 @@ type Income = {
   id: string;
   label: string;
   category: string;
-  amount: string; // Decimal viene serializado como string desde la API
+  amount: string;
   recurrence: "ONE_TIME" | "MONTHLY" | "ANNUAL";
 };
 
-const RECURRENCE_LABEL: Record<string, string> = {
-  MONTHLY: "Mensual",
-  ANNUAL: "Anual",
-  ONE_TIME: "Puntual",
-};
+const RECURRENCE_LABEL: Record<string, string> = { MONTHLY: "Mensual", ANNUAL: "Anual", ONE_TIME: "Puntual" };
 
 function formatEUR(n: number) {
   return new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR" }).format(n);
@@ -60,26 +56,33 @@ export function IncomeTab({ initialIncomes }: { initialIncomes: Income[] }) {
     await fetch(`/api/income/${id}`, { method: "DELETE" });
   }
 
+  const totalMonthly = incomes.reduce((sum, i) => {
+    const amt = Number(i.amount);
+    if (i.recurrence === "MONTHLY") return sum + amt;
+    if (i.recurrence === "ANNUAL") return sum + amt / 12;
+    return sum;
+  }, 0);
+
   return (
-    <div className="grid lg:grid-cols-[1fr_1.4fr] gap-6">
-      <form onSubmit={handleSubmit} className="bg-white dark:bg-ink-900 border border-mist-200 dark:border-ink-700 rounded-card p-5 space-y-3 h-fit">
-        <p className="font-medium text-sm mb-1">Añadir ingreso</p>
+    <div className="grid lg:grid-cols-[340px_1fr] gap-5">
+      <form onSubmit={handleSubmit} className="card p-5 space-y-4 h-fit">
+        <p className="text-sm font-medium">Añadir ingreso</p>
         <div>
-          <label className="text-xs text-ink-600 dark:text-mist-400 block mb-1">Nombre</label>
+          <label className="field-label">Nombre</label>
           <input
             value={form.label}
             onChange={(e) => setForm({ ...form, label: e.target.value })}
             placeholder="Nómina mensual"
-            className="w-full border border-mist-300 dark:border-ink-700 bg-transparent rounded-card px-3 py-2 text-sm"
+            className="field-input"
           />
         </div>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-xs text-ink-600 dark:text-mist-400 block mb-1">Categoría</label>
+            <label className="field-label">Categoría</label>
             <select
               value={form.category}
               onChange={(e) => setForm({ ...form, category: e.target.value })}
-              className="w-full border border-mist-300 dark:border-ink-700 bg-transparent rounded-card px-3 py-2 text-sm"
+              className="field-input"
             >
               {INCOME_CATEGORIES.map((c) => (
                 <option key={c.value} value={c.value}>{c.label}</option>
@@ -87,11 +90,11 @@ export function IncomeTab({ initialIncomes }: { initialIncomes: Income[] }) {
             </select>
           </div>
           <div>
-            <label className="text-xs text-ink-600 dark:text-mist-400 block mb-1">Recurrencia</label>
+            <label className="field-label">Recurrencia</label>
             <select
               value={form.recurrence}
               onChange={(e) => setForm({ ...form, recurrence: e.target.value })}
-              className="w-full border border-mist-300 dark:border-ink-700 bg-transparent rounded-card px-3 py-2 text-sm"
+              className="field-input"
             >
               {RECURRENCE_OPTIONS.map((r) => (
                 <option key={r.value} value={r.value}>{r.label}</option>
@@ -100,42 +103,47 @@ export function IncomeTab({ initialIncomes }: { initialIncomes: Income[] }) {
           </div>
         </div>
         <div>
-          <label className="text-xs text-ink-600 dark:text-mist-400 block mb-1">Importe (€)</label>
+          <label className="field-label">Importe (€)</label>
           <input
             type="number"
             step="0.01"
             value={form.amount}
             onChange={(e) => setForm({ ...form, amount: e.target.value })}
             placeholder="1800"
-            className="w-full border border-mist-300 dark:border-ink-700 bg-transparent rounded-card px-3 py-2 text-sm"
+            className="field-input"
           />
         </div>
         {error && <p className="text-xs text-signal-red">{error}</p>}
-        <button
-          type="submit"
-          disabled={submitting}
-          className="w-full bg-ink-900 dark:bg-mist-100 text-white dark:text-ink-900 rounded-card py-2 text-sm font-medium disabled:opacity-60"
-        >
+        <button type="submit" disabled={submitting} className="btn-primary w-full">
           {submitting ? "Guardando..." : "Añadir ingreso"}
         </button>
       </form>
 
-      <div className="bg-white dark:bg-ink-900 border border-mist-200 dark:border-ink-700 rounded-card p-5">
-        <p className="font-medium text-sm mb-2">Tus ingresos</p>
+      <div className="card p-5">
+        <div className="flex items-baseline justify-between mb-1">
+          <p className="text-sm font-medium">Tus ingresos</p>
+          {incomes.length > 0 && (
+            <p className="text-xs text-ink-600 dark:text-mist-400">
+              <span className="mono-data text-wealth-500 font-medium">{formatEUR(totalMonthly)}</span> / mes
+            </p>
+          )}
+        </div>
         {incomes.length === 0 ? (
-          <p className="text-sm text-ink-600 dark:text-mist-400 py-6 text-center">
+          <p className="text-sm text-ink-600 dark:text-mist-400 py-10 text-center">
             Todavía no has añadido ningún ingreso.
           </p>
         ) : (
-          incomes.map((i) => (
-            <MoneyRow
-              key={i.id}
-              label={i.label}
-              meta={`${INCOME_CATEGORIES.find((c) => c.value === i.category)?.label ?? i.category} · ${RECURRENCE_LABEL[i.recurrence]}`}
-              amount={formatEUR(Number(i.amount))}
-              onDelete={() => handleDelete(i.id)}
-            />
-          ))
+          <div className="mt-2">
+            {incomes.map((i) => (
+              <MoneyRow
+                key={i.id}
+                label={i.label}
+                meta={`${INCOME_CATEGORIES.find((c) => c.value === i.category)?.label ?? i.category} · ${RECURRENCE_LABEL[i.recurrence]}`}
+                amount={formatEUR(Number(i.amount))}
+                onDelete={() => handleDelete(i.id)}
+              />
+            ))}
+          </div>
         )}
       </div>
     </div>
