@@ -23,11 +23,16 @@ export default async function MiDineroPage() {
   if (!session?.user) redirect("/login");
   const userId = (session.user as any).id as string;
 
-  const [incomes, expenses, assets, liabilities] = await Promise.all([
+  const [incomes, expenses, assets, liabilities, categories] = await Promise.all([
     prisma.income.findMany({ where: { userId }, orderBy: { createdAt: "desc" } }),
     prisma.expense.findMany({ where: { userId }, orderBy: { createdAt: "desc" } }),
     prisma.asset.findMany({ where: { userId }, orderBy: { createdAt: "desc" } }),
     prisma.liability.findMany({ where: { userId }, orderBy: { createdAt: "desc" } }),
+    prisma.userCategory.findMany({
+      where: { userId },
+      orderBy: { createdAt: "asc" },
+      select: { id: true, kind: true, name: true, icon: true },
+    }),
   ]);
 
   // Serializamos explícitamente los Decimal de Prisma a string (no son JSON-serializables
@@ -57,7 +62,7 @@ export default async function MiDineroPage() {
         <p className="eyebrow text-mist-400 mb-2">Gestión financiera</p>
         <h1 className="figure text-3xl font-medium mb-1">Mi dinero</h1>
         <p className="text-sm text-ink-600 dark:text-mist-400">
-          Introduce tus ingresos, gastos, ahorros y deudas. El resto de la app se calcula a partir de estos datos.
+          Introduce tus ingresos, gastos, ahorros y deudas. Pulsa el lápiz de cualquier movimiento para editarlo. El resto de la app se calcula a partir de estos datos.
         </p>
       </header>
 
@@ -88,6 +93,7 @@ export default async function MiDineroPage() {
           expenses: serializedExpenses,
           assets: serializedAssets,
           liabilities: serializedLiabilities,
+          categories,
         }}
       />
     </div>
