@@ -156,6 +156,14 @@ Cubre el motor financiero (`lib/finance-engine/core.test.ts`): flujo mensual, pr
   - `Alert.type` era enum en Prisma pero `TEXT` en la base de datos y el tipo `AlertType` no existía, lo que hacía fallar el guardado de alertas — migración `0003_fix_alert_type_enum`
 - Por primera vez se generaron los tipos de Prisma en el sandbox (`prisma generate --no-engine`), así que el código nuevo y `mi-dinero/page.tsx` se han verificado con `tsc --strict` sin errores. La ruta unificada se probó con 13 tests contra una base de datos en memoria (validación, edición parcial, aislamiento entre usuarios, rename en cascada, duplicados); `lib/money/categories.test.ts` añade 5 tests permanentes
 
+## Mejora — Edición e iconos en Objetivos e Inversiones
+
+- Lápiz en cada objetivo y en cada posición de la cartera: el formulario de arriba pasa a modo edición ("Guardar cambios" / "Cancelar"). En Inversiones esto permite por fin actualizar el **precio actual** sin borrar y recrear la posición
+- Icono propio (emoji) por objetivo e inversión, con icono por defecto según tipo/categoría (`GOAL_TYPE_ICONS`, `INVESTMENT_CATEGORY_ICONS` en `lib/money/categories.ts`). Migración `0004_goal_investment_icons`
+- Aquí las categorías siguen siendo fijas a propósito: el tipo de objetivo y la categoría de inversión los usan el motor de alertas, la distribución de la cartera y el plan de inversión
+- Borrar pide confirmación y, si falla, el elemento vuelve a la lista; botones visibles en pantallas táctiles; el Dashboard se refresca al guardar
+- Sin endpoints nuevos (las rutas ya tenían PATCH): siguen siendo 9 funciones. Verificado con `tsc --strict` y 5 tests de ejecución de ambas rutas (edición parcial sin perder el icono, aislamiento entre usuarios, categoría fuera del enum rechazada)
+
 ## Qué falta
 
 Las 10 fases del plan de desarrollo original están completas. Quedan pendientes, para cuando se decida priorizarlas:

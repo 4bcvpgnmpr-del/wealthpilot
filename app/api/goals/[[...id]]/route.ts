@@ -3,8 +3,18 @@ import { z } from "zod";
 import { prisma } from "@/lib/db/client";
 import { getSessionUserId } from "@/lib/session";
 
+// Icono propio opcional: "" o null → icono por defecto del tipo/categoría
+const optionalIcon = z
+  .string()
+  .trim()
+  .max(16, "Icono no válido.")
+  .nullable()
+  .optional()
+  .transform((v) => (v ? v : null));
+
 const GoalSchema = z.object({
-  name: z.string().min(1, "Ponle un nombre a este objetivo."),
+  name: z.string().trim().min(1, "Ponle un nombre a este objetivo."),
+  icon: optionalIcon,
   type: z.enum([
     "HOME",
     "CAR",

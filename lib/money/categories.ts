@@ -106,3 +106,31 @@ export function resolveCategory(
     icon: recordIcon || match?.icon || "🏷️",
   };
 }
+
+// ────────────────────────────────
+// Iconos por defecto de Objetivos e Inversiones
+// (aquí las categorías siguen siendo fijas: las usan el motor de alertas, la
+// distribución de la cartera y el plan de inversión; el usuario personaliza
+// con el nombre y un icono propio por registro)
+// ────────────────────────────────
+
+export const GOAL_TYPE_ICONS: Record<string, string> = {
+  HOME: "🏠",
+  CAR: "🚗",
+  TRIP: "✈️",
+  EMERGENCY_FUND: "🛟",
+  RETIREMENT: "🏖️",
+  FINANCIAL_INDEPENDENCE: "🕊️",
+  NET_WORTH_TARGET: "📈",
+  CUSTOM: "🎯",
+};
+
+export const INVESTMENT_CATEGORY_ICONS: Record<string, string> = {
+  ETF: "🌍",
+  STOCK: "📊",
+  FUND: "🧺",
+  BOND: "📜",
+  DEPOSIT: "🔒",
+  CRYPTO: "🪙",
+  OTHER: "💼",
+};

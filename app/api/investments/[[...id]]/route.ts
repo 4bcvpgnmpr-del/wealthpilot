@@ -9,8 +9,18 @@ import { getSessionUserId } from "@/lib/session";
 // POST sin id -> crea inversión
 // PATCH/DELETE con id -> actualiza/borra una inversión concreta
 
+// Icono propio opcional: "" o null → icono por defecto del tipo/categoría
+const optionalIcon = z
+  .string()
+  .trim()
+  .max(16, "Icono no válido.")
+  .nullable()
+  .optional()
+  .transform((v) => (v ? v : null));
+
 const InvestmentSchema = z.object({
-  name: z.string().min(1, "Ponle un nombre a esta inversión."),
+  name: z.string().trim().min(1, "Ponle un nombre a esta inversión."),
+  icon: optionalIcon,
   ticker: z.string().optional().nullable(),
   isin: z.string().optional().nullable(),
   category: z.enum(["ETF", "STOCK", "FUND", "BOND", "DEPOSIT", "CRYPTO", "OTHER"]),
