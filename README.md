@@ -118,7 +118,7 @@ Cubre el motor financiero (`lib/finance-engine/core.test.ts`): flujo mensual, pr
 - API en `app/api/investment-plan` (GET calcula sin guardar, POST genera y persiste `InvestmentPlan` + `Recommendation` con snapshot de los datos usados, para trazabilidad)
 - UI en `/plan-inversion`: capital disponible, distribución propuesta con barra de composición, **por qué** de la propuesta, **qué riesgo tiene** explícito, y el disclaimer obligatorio de "propuesta orientativa, no es una orden de inversión" (spec sección 20)
 - Validado contra Postgres real: usuario con 750€ disponibles y perfil EQUILIBRADO → 337,50€ ETF / 187,50€ renta fija / 112,50€ USA / 112,50€ liquidez
-- **Nota de límite**: con esta fase llegamos a 12 funciones serverless — el máximo exacto del plan Hobby de Vercel. Cualquier endpoint nuevo en el futuro requerirá consolidar alguno existente o pasar a plan Pro.
+- **Nota de límite**: con esta fase llegamos a 12 funciones serverless — el máximo exacto del plan Hobby de Vercel. (Actualizado: tras unificar las rutas de Mi Dinero, el proyecto usa 9.)
 
 ## Estado — Fase 8 completa
 
@@ -141,6 +141,20 @@ Cubre el motor financiero (`lib/finance-engine/core.test.ts`): flujo mensual, pr
 - UI de Plataformas en `/plataformas`: lee la lista de brokers **directamente del registro real** (`BROKER_ADAPTER_REGISTRY` en `lib/brokers/adapter.ts`), no de una lista duplicada — si algún adapter pasa a implementarse de verdad, se reflejaría aquí sin tocar la página
 - Cada tarjeta muestra claramente "Integración pendiente" y explica, al pulsar "Conectar", que la arquitectura (adapters, tokenización) ya está lista pero la conexión real aún no — tal como exige el spec (sección 18: nada de integraciones simuladas)
 - **Sin endpoints nuevos**: como no hay ninguna conexión real que gestionar todavía, esta fase es puramente informativa del lado del cliente — seguimos en 12 funciones
+
+## Mejora — Edición, categorías propias e iconos en Mi Dinero
+
+- **Edición**: cada ingreso, gasto, activo y deuda tiene un botón de lápiz que carga el movimiento en el formulario ("Guardar cambios" / "Cancelar"). Borrar ahora pide confirmación y, si falla, el movimiento vuelve a la lista en vez de desaparecer en silencio
+- **Categorías propias**: chip "+ Nueva" en el selector de categoría (nombre + icono). Se pueden renombrar, cambiar de icono o borrar con el lápiz del chip. Al renombrar, los movimientos que la usaban pasan al nombre nuevo en la misma transacción; al borrar, los movimientos se conservan con su nombre como texto
+- **Iconos**: cada movimiento puede tener su propio emoji; si no, usa el de su categoría. Fuente única de categorías e iconos predefinidos en `lib/money/categories.ts`
+- **Esquema**: `Asset.type` deja de ser el enum rígido `AssetType` y pasa a texto (como el resto), columna `icon` en las 4 tablas y nueva tabla `user_categories` — migración `0002_custom_categories_icons`, validada contra Postgres 16 real con datos existentes
+- **Funciones de Vercel: de 12 a 9.** Las 4 rutas de Mi Dinero más la nueva de categorías viven en un solo archivo, `app/api/[resource]/[[...id]]/route.ts`, con las mismas URLs de siempre (las rutas estáticas como `/api/goals` tienen prioridad sobre el segmento dinámico)
+- **Arreglos encontrados por el camino**:
+  - Al cambiar de pestaña se perdía lo recién añadido hasta recargar (las pestañas se desmontaban). Ahora permanecen montadas y las tarjetas de resumen se refrescan al guardar
+  - Los mensajes de validación de campo (Zod `fieldErrors`) nunca se mostraban; ahora sí
+  - Los botones de editar/borrar solo aparecían con hover, así que en el móvil eran invisibles; ahora se ven siempre en pantallas táctiles
+  - `Alert.type` era enum en Prisma pero `TEXT` en la base de datos y el tipo `AlertType` no existía, lo que hacía fallar el guardado de alertas — migración `0003_fix_alert_type_enum`
+- Por primera vez se generaron los tipos de Prisma en el sandbox (`prisma generate --no-engine`), así que el código nuevo y `mi-dinero/page.tsx` se han verificado con `tsc --strict` sin errores. La ruta unificada se probó con 13 tests contra una base de datos en memoria (validación, edición parcial, aislamiento entre usuarios, rename en cascada, duplicados); `lib/money/categories.test.ts` añade 5 tests permanentes
 
 ## Qué falta
 

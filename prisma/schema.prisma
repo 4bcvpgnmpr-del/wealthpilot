@@ -36,6 +36,7 @@ model User {
   brokerConnections BrokerConnection[]
   alerts           Alert[]
   aiConversations  AIConversation[]
+  categories       UserCategory[]
 
   sessions Session[]
   accounts Account[]
@@ -108,7 +109,8 @@ model Income {
   userId     String
   user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   label      String
-  category   String // salario, alquileres, trabajos_extra, dividendos, otros
+  category   String // salario, alquileres, trabajos_extra, dividendos, otros — o una UserCategory propia
+  icon       String? // emoji elegido por el usuario; null = icono por defecto de la categoría
   amount     Decimal    @db.Decimal(14, 2)
   recurrence Recurrence @default(MONTHLY)
   startDate  DateTime   @default(now())
@@ -130,7 +132,8 @@ model Expense {
   userId     String
   user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   label      String
-  category   String // vivienda, alimentacion, transporte, seguros, ocio, viajes, prestamos, suscripciones, otros
+  category   String // vivienda, alimentacion, transporte, seguros, ocio, viajes, prestamos, suscripciones, otros — o una UserCategory propia
+  icon       String? // emoji elegido por el usuario; null = icono por defecto de la categoría
   amount     Decimal     @db.Decimal(14, 2)
   type       ExpenseType @default(VARIABLE)
   recurrence Recurrence  @default(MONTHLY)
@@ -143,20 +146,13 @@ model Expense {
   @@map("expenses")
 }
 
-enum AssetType {
-  CASH
-  BANK_ACCOUNT
-  DEPOSIT
-  EMERGENCY_FUND
-  OTHER
-}
-
 model Asset {
   id        String    @id @default(cuid())
   userId    String
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   label     String
-  type      AssetType
+  type      String // CASH, BANK_ACCOUNT, DEPOSIT, EMERGENCY_FUND, OTHER — o una UserCategory propia (antes enum AssetType)
+  icon      String? // emoji elegido por el usuario; null = icono por defecto de la categoría
   amount    Decimal   @db.Decimal(14, 2)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -170,7 +166,8 @@ model Liability {
   userId          String
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   label           String
-  type            String // hipoteca, prestamo_personal, prestamo_coche, tarjeta, otros
+  type            String // hipoteca, prestamo_personal, prestamo_coche, tarjeta, otros — o una UserCategory propia
+  icon            String? // emoji elegido por el usuario; null = icono por defecto de la categoría
   outstanding     Decimal  @db.Decimal(14, 2)
   interestRate    Decimal  @db.Decimal(6, 3) // %
   monthlyPayment  Decimal  @db.Decimal(14, 2)
@@ -180,6 +177,30 @@ model Liability {
 
   @@index([userId])
   @@map("liabilities")
+}
+
+// Categorías creadas a mano por el usuario (además de las predefinidas).
+// Los registros guardan la categoría como texto (category / type), así que borrar
+// una categoría propia nunca rompe ni borra los movimientos que la usan.
+enum CategoryKind {
+  INCOME
+  EXPENSE
+  ASSET
+  LIABILITY
+}
+
+model UserCategory {
+  id        String       @id @default(cuid())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind      CategoryKind
+  name      String
+  icon      String // emoji
+  createdAt DateTime     @default(now())
+
+  @@unique([userId, kind, name])
+  @@index([userId])
+  @@map("user_categories")
 }
 
 // ────────────────────────────────
